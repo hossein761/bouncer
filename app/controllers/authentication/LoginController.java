@@ -1,4 +1,4 @@
-package authentication;
+package controllers.authentication;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
@@ -30,6 +30,7 @@ public class LoginController extends Controller {
     public static final String AUTH_TOKEN = "authToken";
 
 
+    //TODO: make proper async
     public static F.Promise<Result> login(){
         final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
         if(loginRequestForm.hasErrors()){
@@ -68,7 +69,7 @@ public class LoginController extends Controller {
     }
 
 
-
+    //TODO: make properly async
     public static F.Promise<Result> requestAccessToken(final String authCode){
         // check if you can find the auth token in cache?
         final String userId = (String) Cache.get(authCode);

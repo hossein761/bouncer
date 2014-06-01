@@ -1,4 +1,4 @@
-package authorization;
+package controllers.authorization;
 
 import play.libs.F;
 import play.mvc.Action;
