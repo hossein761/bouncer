@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 import domain.AccessToken;
 import models.BaseUser;
 import org.springframework.util.StringUtils;
+import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
 import play.libs.F;
@@ -12,10 +13,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import requests.LoginRequest;
-import utils.AuthorizationUtils;
-import utils.PBKDF2Hash;
-import utils.PasswordHash;
-import utils.PatternUtils;
+import utils.*;
 
 import static play.data.Form.form;
 
@@ -26,22 +24,22 @@ import static play.data.Form.form;
  */
 public class LoginController extends Controller {
 
-    public final static String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
+    private final static Logger.ALogger logger = Logger.of(LoginController.class);
+
     public static final String AUTH_TOKEN = "authToken";
 
 
-    //TODO: make proper async
+    // TODO: convert to async
     public static F.Promise<Result> login(){
         final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
         if(loginRequestForm.hasErrors()){
             return F.Promise.pure((Result)badRequest(loginRequestForm.errorsAsJson()));
         }
         final LoginRequest loginRequest = loginRequestForm.get();
+        logger.info("LoginRequest: {}", loginRequest );
         final String emailOrUserName =  loginRequest.emailOrUserName;
         final String incomingPassword =  loginRequest.password;
 
-        // check if the user is logging in with email or username
-        // check the user pass from the db
         BaseUser baseUser;
         final boolean isEmail = PatternUtils.isEmail(emailOrUserName);
         if(isEmail) {
@@ -51,38 +49,57 @@ public class LoginController extends Controller {
         }
         // if not fail
         if(baseUser == null){
-            return F.Promise.pure((Result)unauthorized("username/email does not exist in our system"));
+            return F.Promise.pure((Result)unauthorized("Invalid credentials!"));
         }
-        // if found check if the passwords match then return an authorization code
-        final boolean passwordValid = PasswordHash.validatePassword(incomingPassword,
-                                                                    new PBKDF2Hash(baseUser.passwordHash,
-                                                                            baseUser.salt,
-                                                                            baseUser.iterations));
-        if(!passwordValid){
-            return F.Promise.pure((Result) unauthorized("Invalid credentials"));
+        if(baseUser.status == models.Status.PENDING){
+            return F.Promise.pure((Result)unauthorized("You haven't confirmed your registration, check your email!"));
         }
-        final String authCode = AuthorizationUtils.generateAuthorizationCode();
-        // and put it in cache with some expiry date
-        final int authCodeExpiryTime = ConfigFactory.load().getInt("auth.authCode.expiry");
-        Cache.set(authCode, baseUser.id, authCodeExpiryTime);
-        return F.Promise.pure((Result)ok(authCode));
+        if(baseUser.status == models.Status.REGISTERED) {
+            // if found check if the passwords match then return an authorization code
+            final boolean passwordValid = PasswordHash.validatePassword(incomingPassword,
+                    new PBKDF2Hash(baseUser.passwordHash,
+                            baseUser.salt,
+                            baseUser.iterations));
+            if (!passwordValid) {
+                return F.Promise.pure((Result) unauthorized("Invalid credentials"));
+            }
+            final String authCode = AuthorizationUtils.generateAuthorizationCode();
+            // and put it in cache with some expiry date
+            final int authCodeExpiryTime = ConfigFactory.load().getInt("auth.authCode.expiry");
+            Cache.set(CacheKeyUtils.getAuthCodeCacheKey(authCode), baseUser.id, authCodeExpiryTime);
+            logger.debug("AuthCode created for User {}", baseUser);
+            return F.Promise.pure((Result) ok(authCode));
+        }
+        return F.Promise.pure((Result)unauthorized("Invalid credentials!"));
     }
 
 
-    //TODO: make properly async
     public static F.Promise<Result> requestAccessToken(final String authCode){
-        // check if you can find the auth token in cache?
-        final String userId = (String) Cache.get(authCode);
-        // if not fail
-        if(StringUtils.isEmpty(userId)){
-            return F.Promise.pure((Result)forbidden("AuthCode is not valid!"));
-        }
-        // if found create an accessToken and return with refresh token as well
-        final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
-        ObjectNode authTokenJson = Json.newObject();
-        authTokenJson.put(AUTH_TOKEN, Json.toJson(accessToken));
-        response().setCookie(AUTH_TOKEN, Json.stringify(authTokenJson));
-        return F.Promise.pure((Result)ok(authTokenJson));
+        return F.Promise.promise(new F.Function0<Result>() {
+            @Override
+            public Result apply() throws Throwable {
+                // check if you can find the auth token in cache?
+                final String userId = (String) Cache.get(CacheKeyUtils.getAuthCodeCacheKey(authCode));
+                // if not fail
+                if(StringUtils.isEmpty(userId)){
+                    return forbidden("AuthCode is not valid!");
+                }
+                // if found create an accessToken and return with refresh token as well
+                Cache.remove(CacheKeyUtils.getAuthCodeCacheKey(authCode));
+                
+                final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
+                ObjectNode authTokenJson = Json.newObject();
+                authTokenJson.put(AUTH_TOKEN, Json.toJson(accessToken));
+                response().setCookie(AUTH_TOKEN, Json.stringify(authTokenJson));
+                // put in cache as well
+                Cache.set(CacheKeyUtils.getAccessTokenCacheKey(accessToken.token),
+                          userId,
+                          accessToken.expiryTime);
+
+                return ok(authTokenJson);
+            }
+        });
+
     }
 
     public static F.Promise<Result> logout(){
