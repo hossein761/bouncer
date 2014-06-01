@@ -2,10 +2,7 @@ package models;
 
 import play.db.ebean.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * // TODO: Add class description here.
@@ -18,14 +15,8 @@ public class RegistrationToken extends Model {
     @Id
     @Column(name = "id")
     public String id;
-    @Column(name = "name")
-    public String name;
-    @Column(name = "lastName")
-    public String lastName;
-    @Column(name = "email")
-    public String email;
-    @Column(name = "status")
-    public RegistrationStatus status;
+    @OneToOne(targetEntity = BaseUser.class)
+    public BaseUser baseUser;
 
     private static Finder<String, RegistrationToken> find = new Finder<String, RegistrationToken>(String.class,
                                                                                                   RegistrationToken.class);

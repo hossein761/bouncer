@@ -1,6 +1,6 @@
 package annotations;
 
-import authorization.BouncerSecured;
+import controllers.authorization.BouncerSecured;
 import play.mvc.With;
 
 import java.lang.annotation.ElementType;

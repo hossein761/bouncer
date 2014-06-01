@@ -1,10 +1,27 @@
 package requests;
 
+import play.data.validation.Constraints;
+
 /**
  * // TODO: Add class description here.
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
 public class SignUpRequest {
-    //TODO: fill in
+    @Constraints.Required
+    public String name;
+    @Constraints.Required
+    public String lastName;
+    @Constraints.Required
+    public String userName;
+    @Constraints.Required
+    public String password;
+    @Constraints.Required
+    @Constraints.Email
+    public String email;
+
+    public String validate() {
+        //TODO: Do validation here if needed
+        return null;
+    }
 }

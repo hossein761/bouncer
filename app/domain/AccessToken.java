@@ -7,6 +7,6 @@ package domain;
  */
 public class AccessToken {
     public String token;
-    public long expiryTime;
+    public int expiryTime;
     public String refreshToken;
 }

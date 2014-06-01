@@ -1,6 +1,7 @@
 package utils;
 
 import com.typesafe.config.ConfigFactory;
+import models.BaseUser;
 import models.RegistrationToken;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
@@ -23,7 +24,7 @@ public class EmailUtils {
     private static final String FROM = ConfigFactory.load().getString("smtp.from");
 
 
-    public static void sendSignUpEmail(RegistrationToken registrationToken) {
+    public static void sendSignUpEmail(final String registrationTokenId, final BaseUser baseUser) {
         Email email = new SimpleEmail();
         email.setHostName(HOST_NAME);
         email.setSmtpPort(SMTP_PORT);
@@ -32,8 +33,8 @@ public class EmailUtils {
         email.setSubject("Registration email");
         try {
             email.setFrom(FROM);
-            email.setMsg("Click on: \n " + generateSignUpUrl(registrationToken) );
-            email.addTo(registrationToken.email);
+            email.setMsg("Click on: \n " + generateSignUpUrl(registrationTokenId) );
+            email.addTo(baseUser.email);
             email.send();
         }
         catch(EmailException e){
@@ -42,7 +43,7 @@ public class EmailUtils {
     }
 
     //TODO: use email templates!
-    private static String generateSignUpUrl(RegistrationToken registrationToken) {
-        return controllers.authentication.routes.RegistrationController.confirmEmail(registrationToken.email).toString();
+    private static String generateSignUpUrl(final String registrationToken) {
+        return controllers.authentication.routes.RegistrationController.signUpConfirm(registrationToken).toString();
     }
 }

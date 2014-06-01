@@ -5,6 +5,7 @@ import com.avaje.ebean.annotation.UpdatedTimestamp;
 import play.db.ebean.Model;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.sql.Timestamp;
@@ -13,7 +14,9 @@ import java.sql.Timestamp;
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
+//TODO: add unique stuff
 @MappedSuperclass
+@Entity(name="base_user")
 public class BaseUser extends Model {
 
     @Id
@@ -37,6 +40,8 @@ public class BaseUser extends Model {
     public int iterations;
     @Column(name = "last_login_time")
     public Timestamp lastLoginTime;
+    @Column(name = "status")
+    public Status status;
     @CreatedTimestamp
     @Column(name = "created_time")
     public Timestamp createdTime;
@@ -52,5 +57,28 @@ public class BaseUser extends Model {
 
     public static BaseUser findByUserName(final String userName){
         return find.where().eq("user_name", userName).findUnique();
+    }
+
+    public static BaseUser findById(final String id){
+        return find.byId(id);
+    }
+
+    @Override
+    public String toString() {
+        return "BaseUser{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", userName='" + userName + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", salt='" + salt + '\'' +
+                ", iterations=" + iterations +
+                ", lastLoginTime=" + lastLoginTime +
+                ", status=" + status +
+                ", createdTime=" + createdTime +
+                ", updatedTime=" + updatedTime +
+                '}';
     }
 }

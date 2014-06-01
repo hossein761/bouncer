@@ -5,6 +5,6 @@ package models;
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-public enum RegistrationStatus {
-    PENDING,REGISTERED
+public enum Status {
+    PENDING,REGISTERED,DELETED
 }

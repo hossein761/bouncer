@@ -21,7 +21,7 @@ public class AuthorizationUtils {
     public static AccessToken createAccessToken(final String userId){
         AccessToken accessToken = new AccessToken();
         accessToken.token = generateAccessToken(userId);
-        accessToken.expiryTime = ConfigFactory.load().getLong("auth.accessToken.expiry");
+        accessToken.expiryTime = ConfigFactory.load().getInt("auth.accessToken.expiry");
         accessToken.refreshToken = generateRefreshToken(userId);
         return accessToken;
     }
