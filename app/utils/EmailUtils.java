@@ -43,6 +43,6 @@ public class EmailUtils {
 
     //TODO: use email templates!
     private static String generateSignUpUrl(RegistrationToken registrationToken) {
-        return new StringBuilder().append(controllers.authentication.routes.RegistrationController.confirmEmail(registrationToken.email));
+        return controllers.authentication.routes.RegistrationController.confirmEmail(registrationToken.email).toString();
     }
 }
