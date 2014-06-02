@@ -1,5 +1,6 @@
 package controllers.authorization;
 
+import annotations.BouncerSecuredAction;
 import org.apache.commons.lang3.StringUtils;
 import play.cache.Cache;
 import play.libs.F;
@@ -14,7 +15,7 @@ import utils.CacheKeyUtils;
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
 //TODO: make async and refactor!
-public class BouncerSecured extends Action<BouncerSecured> {
+public class BouncerSecured extends Action<BouncerSecuredAction> {
     public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
     @Override
     public F.Promise<Result> call(final Http.Context ctx) throws Throwable {
