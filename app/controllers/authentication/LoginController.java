@@ -18,7 +18,7 @@ import utils.*;
 import static play.data.Form.form;
 
 /**
- * // TODO: Add class description here.
+ * LoginController containing endpoints for post-registration actions
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
@@ -27,6 +27,8 @@ public class LoginController extends Controller {
     private final static Logger.ALogger logger = Logger.of(LoginController.class);
 
     public static final String AUTH_TOKEN = "authToken";
+    public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
+
 
 
     // TODO: convert to async
@@ -103,7 +105,14 @@ public class LoginController extends Controller {
     }
 
     public static F.Promise<Result> logout(){
-        //TODO: implement
-        return null;
+        return F.Promise.promise( new F.Function0<Result>() {
+            @Override
+            public Result apply() throws Throwable {
+                response().discardCookie(AUTH_TOKEN);
+                final String[] accessTokenHeader = ctx().request().headers().get(ACCESS_TOKEN_HEADER);
+                Cache.remove(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
+                return ok("you have been logged out!");
+            }
+        });
     }
 }
