@@ -1,6 +1,8 @@
-name := """bouncer"""
+name := "bouncer"
 
 version := "1.0-SNAPSHOT"
+
+organization := "nl.bouncer"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
