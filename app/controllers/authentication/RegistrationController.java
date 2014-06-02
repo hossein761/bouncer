@@ -3,7 +3,6 @@ package controllers.authentication;
 import com.typesafe.config.ConfigFactory;
 import models.BaseUser;
 import models.RegistrationToken;
-import models.Status;
 import play.cache.Cache;
 import play.data.Form;
 import play.libs.F;
@@ -15,14 +14,13 @@ import utils.EmailUtils;
 import utils.PBKDF2Hash;
 import utils.PasswordHash;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 import static play.data.Form.form;
 
 
 /**
- * // TODO: Add class description here.
+ * RegistrationController containing endpoints for registration and pre-registration actions
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

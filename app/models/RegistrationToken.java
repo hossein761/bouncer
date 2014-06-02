@@ -5,11 +5,11 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 
 /**
- * // TODO: Add class description here.
+ * Model for keeping registration token and its relation to the base
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-@Entity()
+@Entity
 @Table(name = "registration")
 public class RegistrationToken extends Model {
     @Id

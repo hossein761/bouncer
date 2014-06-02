@@ -9,7 +9,7 @@ import play.mvc.Result;
 import utils.CacheKeyUtils;
 
 /**
- * // TODO: Add class description here.
+ * Main Action that intercepts the calls that are annotated with @{BouncerSecuredAction}
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

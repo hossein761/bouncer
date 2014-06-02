@@ -1,7 +1,7 @@
 package utils;
 
 /**
- * // TODO: Add class description here.
+ * Domain model holding password hash
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

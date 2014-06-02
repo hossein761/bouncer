@@ -14,7 +14,6 @@ import java.sql.Timestamp;
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-//TODO: add unique stuff
 @MappedSuperclass
 @Entity(name="base_user")
 public class BaseUser extends Model {
@@ -28,9 +27,9 @@ public class BaseUser extends Model {
     public String lastName;
     @Column(name = "full_name")
     public String fullName;
-    @Column(name = "email")
+    @Column(name = "email" , unique = true)
     public String email;
-    @Column(name = "user_name")
+    @Column(name = "user_name", unique = true)
     public String userName;
     @Column(name = "password_hash")
     public String passwordHash;

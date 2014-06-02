@@ -10,7 +10,7 @@ import org.apache.commons.mail.SimpleEmail;
 import play.Logger;
 
 /**
- * // TODO: Add class description here.
+ * Utility class for emails
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

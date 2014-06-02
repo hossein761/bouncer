@@ -1,8 +1,7 @@
 package domain;
 
 /**
- * // TODO: Add class description here.
- *
+ * Object containing access token and all related info
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
 public class AccessToken {

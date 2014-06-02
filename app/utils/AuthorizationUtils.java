@@ -7,7 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import java.util.UUID;
 
 /**
- * // TODO: Add class description here.
+ * Utility class for Authorization
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

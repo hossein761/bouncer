@@ -3,7 +3,7 @@ package requests;
 import play.data.validation.Constraints;
 
 /**
- * // TODO: Add class description here.
+ * Domain class holding info from a signup request
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
