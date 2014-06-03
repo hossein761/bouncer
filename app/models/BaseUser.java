@@ -2,20 +2,24 @@ package models;
 
 import com.avaje.ebean.annotation.CreatedTimestamp;
 import com.avaje.ebean.annotation.UpdatedTimestamp;
+
 import play.db.ebean.Model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
+
 import java.sql.Timestamp;
 
 /**
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-@MappedSuperclass
-@Entity(name="base_user")
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class BaseUser extends Model {
 
     @Id
