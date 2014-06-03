@@ -33,11 +33,14 @@ public class LoginController extends Controller {
 
     // TODO: convert to async
     public static F.Promise<Result> login(){
+    		System.out.println(ctx().request().method());
         final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
+        System.out.println("\n\n\n\n\n" + loginRequestForm);
+        System.out.println("\n\n\n\n\n" + loginRequestForm.data());
         if(loginRequestForm.hasErrors()){
             return F.Promise.pure((Result)badRequest(loginRequestForm.errorsAsJson()));
         }
-        final LoginRequest loginRequest = loginRequestForm.get();
+        final LoginRequest loginRequest = loginRequestForm.bindFromRequest().get();
         logger.info("LoginRequest: {}", loginRequest );
         final String emailOrUserName =  loginRequest.emailOrUserName;
         final String incomingPassword =  loginRequest.password;
@@ -88,7 +91,7 @@ public class LoginController extends Controller {
                 }
                 // if found create an accessToken and return with refresh token as well
                 Cache.remove(CacheKeyUtils.getAuthCodeCacheKey(authCode));
-                
+
                 final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
                 ObjectNode authTokenJson = Json.newObject();
                 authTokenJson.put(AUTH_TOKEN, Json.toJson(accessToken));
