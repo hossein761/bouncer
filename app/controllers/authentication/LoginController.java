@@ -33,7 +33,7 @@ public class LoginController extends Controller {
 
     // TODO: convert to async
     public static F.Promise<Result> login(){
-    		System.out.println(ctx().request().method());
+    	System.out.println(ctx().request().method());
         final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
         System.out.println("\n\n\n\n\n" + loginRequestForm);
         System.out.println("\n\n\n\n\n" + loginRequestForm.data());

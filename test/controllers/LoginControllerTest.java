@@ -1,23 +1,36 @@
 package controllers;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.POST;
-import static play.test.Helpers.callAction;
-import static play.test.Helpers.route;
-import static play.test.Helpers.status;
 import static org.fest.assertions.Assertions.*;
+import static play.test.Helpers.*;
 
 
 import org.junit.Test;
 
+import play.libs.Json;
 import play.mvc.Result;
+import requests.LoginRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class LoginControllerTest {
 
 	@Test
 	public void LoginTest() throws Exception{
-		Result result = callAction(controllers.authentication.routes.ref.LoginController.login());
-		assertThat(status(result)).isEqualTo(OK);
+        running(fakeApplication(inMemoryDatabase()), new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> params = new HashMap<>();
+                params.put("emailOrUserName", "hossein@hossein.com");
+                params.put("password","p123455");
+
+                Result result = callAction(controllers.authentication.routes.ref.LoginController.login(),fakeRequest()
+                        .withFormUrlEncodedBody(params));
+                assertThat(status(result)).isEqualTo(OK);
+            }
+        });
+
 	}
 
 }

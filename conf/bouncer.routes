@@ -3,7 +3,7 @@
 # ~~~~
 
 
-POST        /login              controllers.authentication.LoginController.login()
+POST         /login              controllers.authentication.LoginController.login
 GET         /accessToken        controllers.authentication.LoginController.requestAccessToken(authCode :String)
-POST        /signUp             controllers.authentication.RegistrationController.signUpRequest()
+POST        /signUp             controllers.authentication.RegistrationController.signUpRequest
 GET         /signUpConfirm      controllers.authentication.RegistrationController.signUpConfirm(signUpTokenId : String)
