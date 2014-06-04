@@ -9,7 +9,7 @@ import play.data.validation.Constraints;
  */
 public class LoginRequest {
 
-    @Constraints.Required
+	@Constraints.Required
     public String emailOrUserName;
     @Constraints.Required
     public String password;
@@ -18,4 +18,11 @@ public class LoginRequest {
         // TODO: Do validation here if needed
         return null;
     }
+
+    @Override
+   	public String toString() {
+   		return "LoginRequest [emailOrUserName=" + emailOrUserName
+   				+ ", password=" + password + "]";
+   	}
+
 }
