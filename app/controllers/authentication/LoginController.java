@@ -26,7 +26,7 @@ public class LoginController extends Controller {
 
     private final static Logger.ALogger logger = Logger.of(LoginController.class);
 
-    public static final String AUTH_TOKEN = "authToken";
+    public static final String AUTH_TOKEN = "Access-Token";
     public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
 
 
@@ -93,15 +93,14 @@ public class LoginController extends Controller {
                 Cache.remove(CacheKeyUtils.getAuthCodeCacheKey(authCode));
 
                 final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
-                ObjectNode authTokenJson = Json.newObject();
-                authTokenJson.put(AUTH_TOKEN, Json.toJson(accessToken));
-                response().setCookie(AUTH_TOKEN, Json.stringify(authTokenJson));
+                final String accessTokenString = Json.stringify(Json.toJson(accessToken));
+                response().setCookie(AUTH_TOKEN, accessTokenString);
                 // put in cache as well
                 Cache.set(CacheKeyUtils.getAccessTokenCacheKey(accessToken.token),
                           userId,
                           accessToken.expiryTime);
 
-                return ok(authTokenJson);
+                return ok(accessTokenString);
             }
         });
 
