@@ -32,9 +32,11 @@ public class EmailUtils {
         email.setSSLOnConnect(USE_SSL);
         email.setSubject("Registration email");
         try {
+        		final String emailMsg = "Click on: \n " + generateSignUpUrl(registrationTokenId);
             email.setFrom(FROM);
-            email.setMsg("Click on: \n " + generateSignUpUrl(registrationTokenId) );
+            email.setMsg(emailMsg);
             email.addTo(baseUser.email);
+            Logger.info("Sending registration email to: {} contents: {}", email.getToAddresses(), emailMsg);
             email.send();
         }
         catch(EmailException e){
