@@ -8,7 +8,8 @@ import play.data.validation.Constraints;
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
 public class SignUpRequest {
-    @Constraints.Required
+
+	@Constraints.Required
     public String name;
     @Constraints.Required
     public String lastName;
@@ -24,4 +25,11 @@ public class SignUpRequest {
         //TODO: Do validation here if needed
         return null;
     }
+
+    @Override
+	public String toString() {
+		return "SignUpRequest [name=" + name + ", lastName=" + lastName
+				+ ", userName=" + userName + ", password=" + password
+				+ ", email=" + email + "]";
+	}
 }
