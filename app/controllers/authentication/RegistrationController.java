@@ -28,7 +28,7 @@ import static play.data.Form.form;
  */
 public class RegistrationController extends Controller {
 
-	private static final Logger.ALogger Logger = Logger.of(RegistrationController.class);
+    private final static Logger.ALogger LOGGER = Logger.of(RegistrationController.class);
 
     public static F.Promise<Result> signUpRequest(){
         return F.Promise.promise(new F.Function0<Result>() {
@@ -63,7 +63,7 @@ public class RegistrationController extends Controller {
                           registrationToken,
                           registrationTokenExpiryTime);
                 // send email
-                Logger.info("Sending sign up confirmation email to user {}", baseUser.id);
+                LOGGER.info("Sending sign up confirmation email to user {}", baseUser.id);
                 EmailUtils.sendSignUpEmail(registrationToken.id, baseUser);
                 return ok("Check your mail box");
             }
