@@ -1,8 +1,10 @@
 package controllers.authentication;
 
 import com.typesafe.config.ConfigFactory;
+
 import models.BaseUser;
 import models.RegistrationToken;
+import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
 import play.libs.F;
@@ -26,6 +28,8 @@ import static play.data.Form.form;
  */
 public class RegistrationController extends Controller {
 
+	private static final Logger.ALogger Logger = Logger.of(RegistrationController.class);
+
     public static F.Promise<Result> signUpRequest(){
         return F.Promise.promise(new F.Function0<Result>() {
             @Override
@@ -34,8 +38,8 @@ public class RegistrationController extends Controller {
                 if(signUpRequestForm.hasErrors()){
                     return badRequest(signUpRequestForm.errorsAsJson());
                 }
-                final SignUpRequest signUpRequest = signUpRequestForm.get();
-
+                final SignUpRequest signUpRequest = signUpRequestForm.bindFromRequest().get();
+                Logger.info("Signing Up user with info {}", signUpRequest);
                 BaseUser baseUser = new BaseUser();
                 baseUser.id = UUID.randomUUID().toString();
                 baseUser.name = signUpRequest.name;
@@ -59,6 +63,7 @@ public class RegistrationController extends Controller {
                           registrationToken,
                           registrationTokenExpiryTime);
                 // send email
+                Logger.info("Sending sign up confirmation email to user {}", baseUser.id);
                 EmailUtils.sendSignUpEmail(registrationToken.id, baseUser);
                 return ok("Check your mail box");
             }
