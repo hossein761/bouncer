@@ -33,10 +33,7 @@ public class LoginController extends Controller {
 
     // TODO: convert to async
     public static F.Promise<Result> login(){
-    	System.out.println(ctx().request().method());
         final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
-        System.out.println("\n\n\n\n\n" + loginRequestForm);
-        System.out.println("\n\n\n\n\n" + loginRequestForm.data());
         if(loginRequestForm.hasErrors()){
             return F.Promise.pure((Result)badRequest(loginRequestForm.errorsAsJson()));
         }
@@ -54,9 +51,11 @@ public class LoginController extends Controller {
         }
         // if not fail
         if(baseUser == null){
+        		Logger.info("User not found!");
             return F.Promise.pure((Result)unauthorized("Invalid credentials!"));
         }
         if(baseUser.status == models.Status.PENDING){
+        		Logger.info("User found but not registered!");
             return F.Promise.pure((Result)unauthorized("You haven't confirmed your registration, check your email!"));
         }
         if(baseUser.status == models.Status.REGISTERED) {
@@ -66,6 +65,7 @@ public class LoginController extends Controller {
                             baseUser.salt,
                             baseUser.iterations));
             if (!passwordValid) {
+        			Logger.info("Invalid password for user: {}" , baseUser.id);
                 return F.Promise.pure((Result) unauthorized("Invalid credentials"));
             }
             final String authCode = AuthorizationUtils.generateAuthorizationCode();
