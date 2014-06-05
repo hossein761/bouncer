@@ -29,7 +29,7 @@ public class LoginController extends Controller {
     public static final String AUTH_TOKEN = "Access-Token";
     public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
 
-
+    //TODO: see http://stackoverflow.com/questions/2927044/redirect-on-ajax-jquery-call for redirecting
 
     // TODO: convert to async
     public static F.Promise<Result> login(){
@@ -95,6 +95,7 @@ public class LoginController extends Controller {
                 final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
                 final String accessTokenString = Json.stringify(Json.toJson(accessToken));
                 response().setCookie(AUTH_TOKEN, accessTokenString);
+                response().setHeader(ACCESS_TOKEN_HEADER, accessToken.token);
                 // put in cache as well
                 Cache.set(CacheKeyUtils.getAccessTokenCacheKey(accessToken.token),
                           userId,
