@@ -95,6 +95,7 @@ public class LoginController extends Controller {
                 final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
                 final String accessTokenString = Json.stringify(Json.toJson(accessToken));
                 response().setCookie(AUTH_TOKEN, accessTokenString);
+                //TODO: see if this is really needed
                 response().setHeader(ACCESS_TOKEN_HEADER, accessToken.token);
                 // put in cache as well
                 Cache.set(CacheKeyUtils.getAccessTokenCacheKey(accessToken.token),
