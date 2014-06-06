@@ -17,7 +17,6 @@ import utils.CacheKeyUtils;
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-//TODO: make async and refactor!
 public class BouncerSecured extends Action<BouncerSecuredAction> {
 	private final static Logger.ALogger logger = Logger.of(BouncerSecured.class);
     public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
