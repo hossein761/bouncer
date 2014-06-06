@@ -24,9 +24,6 @@ public class BouncerSecured extends Action<BouncerSecuredAction> {
     @Override
     public F.Promise<Result> call(final Http.Context ctx) throws Throwable {
         final String[] accessTokenHeader = ctx.request().headers().get(ACCESS_TOKEN_HEADER);
-        for(String str: accessTokenHeader){
-        		logger.info("header \t{}",str);
-        }
         if((accessTokenHeader != null) && (accessTokenHeader.length == 1) && (accessTokenHeader[0] != null) ){
             // check if it exist in the cache
             final String accessToken = (String)Cache.get(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
