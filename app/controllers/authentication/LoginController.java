@@ -19,6 +19,9 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import requests.LoginRequest;
 import utils.*;
+
+import java.sql.Timestamp;
+
 import static play.data.Form.form;
 
 /**
@@ -35,51 +38,62 @@ public class LoginController extends Controller {
 
     //TODO: see http://stackoverflow.com/questions/2927044/redirect-on-ajax-jquery-call for redirecting
 
-    // TODO: convert to async
     public static F.Promise<Result> login(){
-        final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
-        if(loginRequestForm.hasErrors()){
-            return F.Promise.pure((Result)badRequest(loginRequestForm.errorsAsJson()));
-        }
-        final LoginRequest loginRequest = loginRequestForm.bindFromRequest().get();
-        logger.info("LoginRequest: {}", loginRequest );
-        final String emailOrUserName =  loginRequest.emailOrUserName;
-        final String incomingPassword =  loginRequest.password;
+        return F.Promise.promise(new F.Function0<Result>() {
+            @Override
+            public Result apply() throws Throwable {
+                final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
+                if(loginRequestForm.hasErrors()){
+                    return badRequest(loginRequestForm.errorsAsJson());
+                }
+                final LoginRequest loginRequest = loginRequestForm.bindFromRequest().get();
+                logger.info("LoginRequest: {}", loginRequest );
+                final String emailOrUserName =  loginRequest.emailOrUserName;
+                final String incomingPassword =  loginRequest.password;
 
-        BaseUser baseUser;
+                BaseUser baseUser = getUseWithEmailOrUsername(emailOrUserName);
+
+                // if not fail
+                if(baseUser == null){
+                    Logger.info("User not found!");
+                    return unauthorized("Invalid credentials!");
+                }
+                if(baseUser.status == models.Status.PENDING){
+                    Logger.info("User found but not registered!");
+                    return unauthorized("You haven't confirmed your registration, check your email!");
+                }
+                if(baseUser.status == models.Status.REGISTERED) {
+                    // if found check if the passwords match then return an authorization code
+                    final boolean passwordValid = PasswordHash.validatePassword(incomingPassword,
+                            new PBKDF2Hash(baseUser.passwordHash,
+                                    baseUser.salt,
+                                    baseUser.iterations));
+                    if (!passwordValid) {
+                        Logger.info("Invalid password for user: {}" , baseUser.id);
+                        return unauthorized("Invalid credentials");
+                    }
+                    final String authCode = AuthorizationUtils.generateAuthorizationCode();
+                    // and put it in cache with some expiry date
+                    final int authCodeExpiryTime = ConfigFactory.load().getInt("auth.authCode.expiry");
+                    Cache.set(CacheKeyUtils.getAuthCodeCacheKey(authCode), baseUser.id, authCodeExpiryTime);
+                    logger.debug("AuthCode created for User {}", baseUser);
+                    baseUser.lastLoginTime = new Timestamp(System.currentTimeMillis());
+                    baseUser.update();
+                    return ok(authCode);
+                }
+                return unauthorized("Invalid credentials!");
+            }
+        });
+
+    }
+
+    private static BaseUser getUseWithEmailOrUsername(String emailOrUserName) {
         final boolean isEmail = PatternUtils.isEmail(emailOrUserName);
         if(isEmail) {
-            baseUser = BaseUser.findByEmail(emailOrUserName);
+            return BaseUser.findByEmail(emailOrUserName);
         }else {
-            baseUser = BaseUser.findByUserName(emailOrUserName);
+            return BaseUser.findByUserName(emailOrUserName);
         }
-        // if not fail
-        if(baseUser == null){
-        		Logger.info("User not found!");
-            return F.Promise.pure((Result)unauthorized("Invalid credentials!"));
-        }
-        if(baseUser.status == models.Status.PENDING){
-        		Logger.info("User found but not registered!");
-            return F.Promise.pure((Result)unauthorized("You haven't confirmed your registration, check your email!"));
-        }
-        if(baseUser.status == models.Status.REGISTERED) {
-            // if found check if the passwords match then return an authorization code
-            final boolean passwordValid = PasswordHash.validatePassword(incomingPassword,
-                    new PBKDF2Hash(baseUser.passwordHash,
-                            baseUser.salt,
-                            baseUser.iterations));
-            if (!passwordValid) {
-        			Logger.info("Invalid password for user: {}" , baseUser.id);
-                return F.Promise.pure((Result) unauthorized("Invalid credentials"));
-            }
-            final String authCode = AuthorizationUtils.generateAuthorizationCode();
-            // and put it in cache with some expiry date
-            final int authCodeExpiryTime = ConfigFactory.load().getInt("auth.authCode.expiry");
-            Cache.set(CacheKeyUtils.getAuthCodeCacheKey(authCode), baseUser.id, authCodeExpiryTime);
-            logger.debug("AuthCode created for User {}", baseUser);
-            return F.Promise.pure((Result) ok(authCode));
-        }
-        return F.Promise.pure((Result)unauthorized("Invalid credentials!"));
     }
 
 
