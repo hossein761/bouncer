@@ -4,6 +4,7 @@
 
 
 POST         /login              controllers.authentication.LoginController.login
+GET			/logout				controllers.authentication.LoginController.logout
 GET         /accessToken        controllers.authentication.LoginController.requestAccessToken(authCode :String)
 POST        /signUp             controllers.authentication.RegistrationController.signUpRequest
 GET         /signUpConfirm      controllers.authentication.RegistrationController.signUpConfirm(signUpTokenId : String)
