@@ -1,10 +1,15 @@
 package controllers.authentication;
 
+import annotations.BouncerSecuredAction;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+
 import domain.AccessToken;
 import models.BaseUser;
+
 import org.springframework.util.StringUtils;
+
 import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
@@ -14,7 +19,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import requests.LoginRequest;
 import utils.*;
-
 import static play.data.Form.form;
 
 /**
@@ -108,6 +112,7 @@ public class LoginController extends Controller {
 
     }
 
+    @BouncerSecuredAction
     public static F.Promise<Result> logout(){
         return F.Promise.promise( new F.Function0<Result>() {
             @Override
