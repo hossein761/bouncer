@@ -59,4 +59,9 @@ public class AuthorizationUtils {
         final byte[] decode = new Base64(true).decodeBase64(accessToken.getBytes());
         return new String(decode);
     }
+
+    public static String getUserIdFromAccessToken(final String accessToken){
+        final String at = decode(accessToken);
+        return at.split(":")[2];
+    }
 }
