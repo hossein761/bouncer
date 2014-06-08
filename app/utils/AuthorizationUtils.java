@@ -40,7 +40,7 @@ public class AuthorizationUtils {
         final String creationTime = String.valueOf(System.currentTimeMillis());
         // some random string
         final String accessTokenId = UUID.randomUUID().toString();
-        final String keySource = accessTokenId + creationTime + userId;
+        final String keySource = accessTokenId + ":" +creationTime + ":"+ userId;
         return encode(keySource);
 
     }
@@ -50,4 +50,13 @@ public class AuthorizationUtils {
         return new String(tokenByte);
     }
 
+    /**
+     * Decodes and accessToken
+     * @param accessToken
+     * @return
+     */
+    public static String decode(final String accessToken) {
+        final byte[] decode = new Base64(true).decodeBase64(accessToken.getBytes());
+        return new String(decode);
+    }
 }
