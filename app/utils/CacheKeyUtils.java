@@ -1,7 +1,7 @@
 package utils;
 
 /**
- * // TODO: Add class description here.
+ * Utility class to create keys for cache
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
