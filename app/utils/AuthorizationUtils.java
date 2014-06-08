@@ -35,6 +35,7 @@ public class AuthorizationUtils {
 
     }
 
+    //TODO: make more secure maybe
     private static String generateTokenString(final String userId) {
         // creation time
         final String creationTime = String.valueOf(System.currentTimeMillis());
