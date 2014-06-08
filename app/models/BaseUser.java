@@ -30,7 +30,7 @@ public class BaseUser extends Model {
     @Id
     @Column(name = "id")
     public String id;
-    @Column(name = "name")
+    @Column(name = "first_name")
     public String name;
     @Column(name = "last_name")
     public String lastName;
