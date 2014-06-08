@@ -2,8 +2,8 @@ package controllers.authentication;
 
 import com.typesafe.config.ConfigFactory;
 
-import models.BaseUser;
-import models.RegistrationToken;
+import models.db.User;
+import models.db.RegistrationToken;
 import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
@@ -40,22 +40,22 @@ public class RegistrationController extends Controller {
                 }
                 final SignUpRequest signUpRequest = signUpRequestForm.bindFromRequest().get();
                 Logger.info("Signing Up user with info {}", signUpRequest);
-                BaseUser baseUser = new BaseUser();
-                baseUser.id = UUID.randomUUID().toString();
-                baseUser.name = signUpRequest.name;
-                baseUser.lastName = signUpRequest.lastName;
-                baseUser.email = signUpRequest.email;
-                baseUser.userName = signUpRequest.userName;
-                baseUser.status = models.Status.PENDING;
+                User user = new User();
+                user.id = UUID.randomUUID().toString();
+                user.firstName = signUpRequest.name;
+                user.lastName = signUpRequest.lastName;
+                user.email = signUpRequest.email;
+                user.userName = signUpRequest.userName;
+                user.status = models.Status.PENDING;
                 final PBKDF2Hash hash = PasswordHash.createHash(signUpRequest.password);
-                baseUser.passwordHash = hash.hash;
-                baseUser.salt = hash.salt;
-                baseUser.iterations = hash.iterations;
-                baseUser.save();
+                user.passwordHash = hash.hash;
+                user.salt = hash.salt;
+                user.iterations = hash.iterations;
+                user.save();
 
                 RegistrationToken registrationToken = new RegistrationToken();
                 registrationToken.id = UUID.randomUUID().toString();
-                registrationToken.baseUser = baseUser;
+                registrationToken.user = user;
                 registrationToken.save();
                 //put in cache
                 final int registrationTokenExpiryTime = ConfigFactory.load().getInt("auth.registrationToken.expiry");
@@ -63,8 +63,8 @@ public class RegistrationController extends Controller {
                           registrationToken,
                           registrationTokenExpiryTime);
                 // send email
-                LOGGER.info("Sending sign up confirmation email to user {}", baseUser.id);
-                EmailUtils.sendSignUpEmail(registrationToken.id, baseUser);
+                LOGGER.info("Sending sign up confirmation email to user {}", user.id);
+                EmailUtils.sendSignUpEmail(registrationToken.id, user);
                 return ok("Check your mail box");
             }
         });
@@ -83,9 +83,9 @@ public class RegistrationController extends Controller {
                         return notFound("You have to signup first!");
                     }
                 }
-                BaseUser baseUser = BaseUser.findById(registrationToken.baseUser.id);
-                baseUser.status = models.Status.REGISTERED;
-                baseUser.save();
+                User user = User.findById(registrationToken.user.id);
+                user.status = models.Status.REGISTERED;
+                user.save();
                 Cache.remove(CacheKeyUtils.getRegistrationTokenCacheKey(registrationToken.id));
                 return ok("You may now login with your username/email and password");
             }

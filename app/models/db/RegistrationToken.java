@@ -1,4 +1,4 @@
-package models;
+package models.db;
 
 import play.db.ebean.Model;
 
@@ -15,8 +15,8 @@ public class RegistrationToken extends Model {
     @Id
     @Column(name = "id")
     public String id;
-    @OneToOne(targetEntity = BaseUser.class)
-    public BaseUser baseUser;
+    @OneToOne(targetEntity = User.class)
+    public User user;
 
     private static Finder<String, RegistrationToken> find = new Finder<String, RegistrationToken>(String.class,
                                                                                                   RegistrationToken.class);

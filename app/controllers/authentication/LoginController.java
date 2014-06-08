@@ -2,11 +2,10 @@ package controllers.authentication;
 
 import annotations.BouncerSecuredAction;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
 
 import domain.AccessToken;
-import models.BaseUser;
+import models.db.User;
 
 import org.springframework.util.StringUtils;
 
@@ -51,34 +50,34 @@ public class LoginController extends Controller {
                 final String emailOrUserName =  loginRequest.emailOrUserName;
                 final String incomingPassword =  loginRequest.password;
 
-                BaseUser baseUser = getUseWithEmailOrUsername(emailOrUserName);
+                User user = getUseWithEmailOrUsername(emailOrUserName);
 
                 // if not fail
-                if(baseUser == null){
+                if(user == null){
                     Logger.info("User not found!");
                     return unauthorized("Invalid credentials!");
                 }
-                if(baseUser.status == models.Status.PENDING){
+                if(user.status == models.Status.PENDING){
                     Logger.info("User found but not registered!");
                     return unauthorized("You haven't confirmed your registration, check your email!");
                 }
-                if(baseUser.status == models.Status.REGISTERED) {
+                if(user.status == models.Status.REGISTERED) {
                     // if found check if the passwords match then return an authorization code
                     final boolean passwordValid = PasswordHash.validatePassword(incomingPassword,
-                            new PBKDF2Hash(baseUser.passwordHash,
-                                    baseUser.salt,
-                                    baseUser.iterations));
+                            new PBKDF2Hash(user.passwordHash,
+                                    user.salt,
+                                    user.iterations));
                     if (!passwordValid) {
-                        Logger.info("Invalid password for user: {}" , baseUser.id);
+                        Logger.info("Invalid password for user: {}" , user.id);
                         return unauthorized("Invalid credentials");
                     }
                     final String authCode = AuthorizationUtils.generateAuthorizationCode();
                     // and put it in cache with some expiry date
                     final int authCodeExpiryTime = ConfigFactory.load().getInt("auth.authCode.expiry");
-                    Cache.set(CacheKeyUtils.getAuthCodeCacheKey(authCode), baseUser.id, authCodeExpiryTime);
-                    logger.debug("AuthCode created for User {}", baseUser);
-                    baseUser.lastLoginTime = new Timestamp(System.currentTimeMillis());
-                    baseUser.update();
+                    Cache.set(CacheKeyUtils.getAuthCodeCacheKey(authCode), user.id, authCodeExpiryTime);
+                    logger.debug("AuthCode created for User {}", user);
+                    user.lastLoginTime = new Timestamp(System.currentTimeMillis());
+                    user.update();
                     return ok(authCode);
                 }
                 return unauthorized("Invalid credentials!");
@@ -87,12 +86,12 @@ public class LoginController extends Controller {
 
     }
 
-    private static BaseUser getUseWithEmailOrUsername(String emailOrUserName) {
+    private static User getUseWithEmailOrUsername(String emailOrUserName) {
         final boolean isEmail = PatternUtils.isEmail(emailOrUserName);
         if(isEmail) {
-            return BaseUser.findByEmail(emailOrUserName);
+            return User.findByEmail(emailOrUserName);
         }else {
-            return BaseUser.findByUserName(emailOrUserName);
+            return User.findByUserName(emailOrUserName);
         }
     }
 

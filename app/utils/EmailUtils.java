@@ -1,8 +1,7 @@
 package utils;
 
 import com.typesafe.config.ConfigFactory;
-import models.BaseUser;
-import models.RegistrationToken;
+import models.db.User;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -24,7 +23,7 @@ public class EmailUtils {
     private static final String FROM = ConfigFactory.load().getString("smtp.from");
 
 
-    public static void sendSignUpEmail(final String registrationTokenId, final BaseUser baseUser) {
+    public static void sendSignUpEmail(final String registrationTokenId, final User user) {
         Email email = new SimpleEmail();
         email.setHostName(HOST_NAME);
         email.setSmtpPort(SMTP_PORT);
@@ -35,7 +34,7 @@ public class EmailUtils {
         		final String emailMsg = "Click on: \n " + generateSignUpUrl(registrationTokenId);
             email.setFrom(FROM);
             email.setMsg(emailMsg);
-            email.addTo(baseUser.email);
+            email.addTo(user.email);
             Logger.info("Sending registration email to: {} contents: {}", email.getToAddresses(), emailMsg);
             email.send();
         }
