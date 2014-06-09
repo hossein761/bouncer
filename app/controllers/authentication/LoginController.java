@@ -33,7 +33,6 @@ public class LoginController extends Controller {
     private final static Logger.ALogger logger = Logger.of(LoginController.class);
 
     public static final String AUTH_TOKEN = "Access-Token";
-    public final static String ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN";
 
     //TODO: see http://stackoverflow.com/questions/2927044/redirect-on-ajax-jquery-call for redirecting
 
@@ -112,7 +111,7 @@ public class LoginController extends Controller {
                 final AccessToken accessToken = AuthorizationUtils.createAccessToken(userId);
                 final String accessTokenString = Json.stringify(Json.toJson(accessToken));
                 response().setCookie(AUTH_TOKEN, accessTokenString);
-                response().setHeader(ACCESS_TOKEN_HEADER, accessToken.token);
+                response().setHeader(AuthConstants.ACCESS_TOKEN_HEADER, accessToken.token);
                 // put in cache as well
                 Cache.set(CacheKeyUtils.getAccessTokenCacheKey(accessToken.token),
                           userId,
@@ -130,7 +129,7 @@ public class LoginController extends Controller {
             @Override
             public Result apply() throws Throwable {
                 response().discardCookie(AUTH_TOKEN);
-                final String[] accessTokenHeader = ctx().request().headers().get(ACCESS_TOKEN_HEADER);
+                final String[] accessTokenHeader = ctx().request().headers().get(AuthConstants.ACCESS_TOKEN_HEADER);
                 Cache.remove(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
                 return ok("you have been logged out!");
             }
