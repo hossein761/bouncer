@@ -1,5 +1,6 @@
 package controllers.authentication;
 
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.typesafe.config.ConfigFactory;
 
 import models.db.User;
@@ -18,6 +19,7 @@ import utils.CacheKeyUtils;
 import utils.EmailUtils;
 import utils.PBKDF2Hash;
 import utils.PasswordHash;
+import utils.validation.ValidationUtils;
 
 import java.util.UUID;
 
@@ -37,13 +39,14 @@ public class RegistrationController extends Controller {
         return F.Promise.promise(new F.Function0<Result>() {
             @Override
             public Result apply() throws Throwable {
-                final Form<SignUpRequest> signUpRequestForm = form(SignUpRequest.class);
+                final SignUpRequest signUpRequest = Json.fromJson(request().body().asJson(), SignUpRequest.class);
+                ValidationUtils.validatedSignUpRequest(signUpRequest);
                 //TODO: double check
-                System.out.println("{}"+signUpRequestForm.bindFromRequest().errorsAsJson());
-                if(signUpRequestForm.bindFromRequest().errorsAsJson() != null){
+                if(signUpRequestForm.hasErrors()){
+                    System.out.println(signUpRequestForm.errorsAsJson());
                     return badRequest(signUpRequestForm.errorsAsJson());
                 }
-                final SignUpRequest signUpRequest = signUpRequestForm.bindFromRequest().get();
+                final SignUpRequest signUpRequest = signUpRequestForm.get();
                 Logger.info("Signing Up user with info {}", signUpRequest);
                 User user = new User();
                 user.id = UUID.randomUUID().toString();

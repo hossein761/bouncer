@@ -1,8 +1,10 @@
 package controllers.authentication;
 
 import org.junit.Test;
+import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeRequest;
+import requests.SignUpRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,20 +20,22 @@ public class RegistrationControllerTest {
         running(fakeApplication(inMemoryDatabase()),new Runnable() {
             @Override
             public void run() {
-                Map<String, String> regFromParams = new HashMap<String, String>();
-                regFromParams.put("name","hossein");
-                regFromParams.put("lastName","kazemi");
-                regFromParams.put("email","1@1.com");
-                regFromParams.put("userName","hossein");
-                regFromParams.put("password","hossein");
+                SignUpRequest sr = new SignUpRequest();
+                sr.name = "hossein";
+                sr.lastName = "kazemi";
+                sr.email = "1@1.com";
+                sr.password = "hossein";
+                sr.userName = "hossein";
+
                 Result result = callAction(controllers.authentication.routes.ref.RegistrationController.signUpRequest(),
-                        new FakeRequest(POST, "/auth/signUp").withFormUrlEncodedBody(regFromParams));
+                        new FakeRequest(POST, "/auth/signUp").withJsonBody(Json.toJson(sr)));
                 assertThat(status(result)).isEqualTo(OK);
 
                 // again
                 result = callAction(controllers.authentication.routes.ref.RegistrationController.signUpRequest(),
-                        new FakeRequest(POST, "/auth/signUp").withFormUrlEncodedBody(regFromParams));
-                System.out.println(contentAsString(result));
+                        new FakeRequest(POST, "/auth/signUp").withJsonBody(Json.toJson(sr)));
+                assertThat(status(result)).isEqualTo(BAD_REQUEST);
+
 
             }
         });
