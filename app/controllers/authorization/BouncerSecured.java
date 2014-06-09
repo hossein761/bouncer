@@ -8,9 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.F;
+import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
+import responses.AuthErrorCodes;
+import responses.AuthErrorResponse;
 import utils.CacheKeyUtils;
 
 /**
@@ -23,16 +26,21 @@ public class BouncerSecured extends Action<BouncerSecuredAction> {
     @Override
     public F.Promise<Result> call(final Http.Context ctx) throws Throwable {
         final String[] accessTokenHeader = ctx.request().headers().get(AuthConstants.ACCESS_TOKEN_HEADER);
+        AuthErrorResponse authErrorResponse;
         if((accessTokenHeader != null) && (accessTokenHeader.length == 1) && (accessTokenHeader[0] != null) ){
             // check if it exist in the cache
             final String accessToken = (String)Cache.get(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
             if(StringUtils.isEmpty(accessToken)){
-                return F.Promise.pure((Result)forbidden("You are not logged in!"));
+                authErrorResponse = new AuthErrorResponse(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
+                        AuthErrorCodes.ACCESS_DENIED.getErrorMessage());
+                return F.Promise.pure((Result)forbidden(Json.toJson(authErrorResponse)));
             }
 
 
         }else{
-            return F.Promise.pure((Result)forbidden("You are not logged in!"));
+            authErrorResponse = new AuthErrorResponse(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
+                    AuthErrorCodes.ACCESS_DENIED.getErrorMessage());
+            return F.Promise.pure((Result)forbidden(Json.toJson(authErrorResponse)));
         }
         logger.info("Access denied!");
         return delegate.call(ctx);

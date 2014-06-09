@@ -17,6 +17,8 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import requests.LoginRequest;
+import responses.AuthErrorCodes;
+import responses.AuthErrorResponse;
 import utils.*;
 
 import java.sql.Timestamp;
@@ -51,14 +53,19 @@ public class LoginController extends Controller {
 
                 User user = getUseWithEmailOrUsername(emailOrUserName);
 
+                AuthErrorResponse authErrorResponse;
                 // if not fail
                 if(user == null){
                     Logger.info("User not found!");
-                    return unauthorized("Invalid credentials!");
+                    authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
+                            AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
+                    return unauthorized(Json.toJson(authErrorResponse));
                 }
                 if(user.status == models.Status.PENDING){
                     Logger.info("User found but not registered!");
-                    return unauthorized("You haven't confirmed your registration, check your email!");
+                    authErrorResponse = new AuthErrorResponse(AuthErrorCodes.REGISTRATION_INCOMPLETE.getErrorCode(),
+                            AuthErrorCodes.REGISTRATION_INCOMPLETE.getErrorMessage());
+                    return unauthorized(Json.toJson(authErrorResponse));
                 }
                 if(user.status == models.Status.REGISTERED) {
                     // if found check if the passwords match then return an authorization code
@@ -68,7 +75,9 @@ public class LoginController extends Controller {
                                     user.iterations));
                     if (!passwordValid) {
                         Logger.info("Invalid password for user: {}" , user.id);
-                        return unauthorized("Invalid credentials");
+                        authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
+                                AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
+                        return unauthorized(Json.toJson(authErrorResponse));
                     }
                     final String authCode = AuthorizationUtils.generateAuthorizationCode();
                     // and put it in cache with some expiry date
@@ -79,7 +88,9 @@ public class LoginController extends Controller {
                     user.update();
                     return ok(authCode);
                 }
-                return unauthorized("Invalid credentials!");
+                authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
+                        AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
+                return unauthorized(Json.toJson(authErrorResponse));
             }
         });
 
@@ -103,7 +114,9 @@ public class LoginController extends Controller {
                 final String userId = (String) Cache.get(CacheKeyUtils.getAuthCodeCacheKey(authCode));
                 // if not fail
                 if(StringUtils.isEmpty(userId)){
-                    return forbidden("AuthCode is not valid!");
+                    final AuthErrorResponse authErrorResponse = new AuthErrorResponse(AuthErrorCodes.AUTH_CODE_NOT_VALID.getErrorCode(),
+                            AuthErrorCodes.AUTH_CODE_NOT_VALID.getErrorMessage());
+                    return unauthorized(Json.toJson(authErrorResponse));
                 }
                 // if found create an accessToken and return with refresh token as well
                 Cache.remove(CacheKeyUtils.getAuthCodeCacheKey(authCode));

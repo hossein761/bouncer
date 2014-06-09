@@ -8,9 +8,12 @@ import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
 import play.libs.F;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import requests.SignUpRequest;
+import responses.AuthErrorCodes;
+import responses.AuthErrorResponse;
 import utils.CacheKeyUtils;
 import utils.EmailUtils;
 import utils.PBKDF2Hash;
@@ -35,7 +38,9 @@ public class RegistrationController extends Controller {
             @Override
             public Result apply() throws Throwable {
                 final Form<SignUpRequest> signUpRequestForm = form(SignUpRequest.class);
-                if(signUpRequestForm.hasErrors()){
+                //TODO: double check
+                System.out.println("{}"+signUpRequestForm.bindFromRequest().errorsAsJson());
+                if(signUpRequestForm.bindFromRequest().errorsAsJson() != null){
                     return badRequest(signUpRequestForm.errorsAsJson());
                 }
                 final SignUpRequest signUpRequest = signUpRequestForm.bindFromRequest().get();
@@ -80,7 +85,9 @@ public class RegistrationController extends Controller {
                 if (registrationToken == null) {
                     registrationToken = RegistrationToken.findById(registrationTokenId);
                     if (registrationToken == null) {
-                        return notFound("You have to signup first!");
+                        final AuthErrorResponse authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_REGISTRATION_TOKEN.getErrorCode(),
+                                AuthErrorCodes.INVALID_REGISTRATION_TOKEN.getErrorMessage());
+                        return unauthorized(Json.toJson(authErrorResponse));
                     }
                 }
                 User user = User.findById(registrationToken.user.id);
