@@ -40,7 +40,6 @@ public class SignUpRequest {
             errors.add(new ValidationError(AuthErrorCodes.USER_NAME_ALREADY_TAKEN.getErrorCode(),
                     AuthErrorCodes.USER_NAME_ALREADY_TAKEN.getErrorMessage()));
         }
-        System.out.println("  \n{}"+errors);
         return errors.isEmpty() ? null : errors;
     }
 

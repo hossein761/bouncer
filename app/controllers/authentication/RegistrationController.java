@@ -37,13 +37,11 @@ public class RegistrationController extends Controller {
         return F.Promise.promise(new F.Function0<Result>() {
             @Override
             public Result apply() throws Throwable {
-                final Form<SignUpRequest> signUpRequestForm = form(SignUpRequest.class);
-                //TODO: double check
-                System.out.println("{}"+signUpRequestForm.bindFromRequest().errorsAsJson());
-                if(signUpRequestForm.bindFromRequest().errorsAsJson() != null){
+                final Form<SignUpRequest> signUpRequestForm = form(SignUpRequest.class).bindFromRequest();
+                if(signUpRequestForm.hasErrors()){
                     return badRequest(signUpRequestForm.errorsAsJson());
                 }
-                final SignUpRequest signUpRequest = signUpRequestForm.bindFromRequest().get();
+                final SignUpRequest signUpRequest = signUpRequestForm.get();
                 Logger.info("Signing Up user with info {}", signUpRequest);
                 User user = new User();
                 user.id = UUID.randomUUID().toString();
