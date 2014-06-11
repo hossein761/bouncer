@@ -13,7 +13,7 @@ import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import responses.AuthErrorCodes;
-import responses.AuthErrorResponse;
+import responses.ValidationError;
 import utils.CacheKeyUtils;
 
 /**
@@ -26,21 +26,21 @@ public class BouncerSecured extends Action<BouncerSecuredAction> {
     @Override
     public F.Promise<Result> call(final Http.Context ctx) throws Throwable {
         final String[] accessTokenHeader = ctx.request().headers().get(AuthConstants.ACCESS_TOKEN_HEADER);
-        AuthErrorResponse authErrorResponse;
+        ValidationError validationError;
         if((accessTokenHeader != null) && (accessTokenHeader.length == 1) && (accessTokenHeader[0] != null) ){
             // check if it exist in the cache
             final String accessToken = (String)Cache.get(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
             if(StringUtils.isEmpty(accessToken)){
-                authErrorResponse = new AuthErrorResponse(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
+                validationError = new ValidationError(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
                         AuthErrorCodes.ACCESS_DENIED.getErrorMessage());
-                return F.Promise.pure((Result)forbidden(Json.toJson(authErrorResponse)));
+                return F.Promise.pure((Result)forbidden(Json.toJson(validationError)));
             }
 
 
         }else{
-            authErrorResponse = new AuthErrorResponse(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
+            validationError = new ValidationError(AuthErrorCodes.ACCESS_DENIED.getErrorCode(),
                     AuthErrorCodes.ACCESS_DENIED.getErrorMessage());
-            return F.Promise.pure((Result)forbidden(Json.toJson(authErrorResponse)));
+            return F.Promise.pure((Result)forbidden(Json.toJson(validationError)));
         }
         logger.info("Access denied!");
         return delegate.call(ctx);

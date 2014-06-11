@@ -7,16 +7,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */
-public class AuthErrorResponse {
+public class ValidationError {
     @JsonProperty
     private String key;
     @JsonProperty
     private String message;
 
-    public AuthErrorResponse() {
+    public ValidationError() {
     }
 
-    public AuthErrorResponse(String key, String message) {
+    public ValidationError(String key, String message) {
         this.key = key;
         this.message = message;
     }
