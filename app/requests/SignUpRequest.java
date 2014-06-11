@@ -1,6 +1,7 @@
 package requests;
 
 import models.db.User;
+import org.apache.commons.lang3.StringUtils;
 import play.data.validation.Constraints;
 import play.data.validation.ValidationError;
 import responses.AuthErrorCodes;
@@ -15,30 +16,48 @@ import java.util.List;
  */
 public class SignUpRequest {
 
-	@Constraints.Required
     public String name;
-    @Constraints.Required
     public String lastName;
-    @Constraints.Required
     public String userName;
-    @Constraints.Required
     public String password;
-    @Constraints.Required
-    @Constraints.Email
     public String email;
 
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
-        // user with userName should not exist
-        if (User.findByUserName(userName) != null){
-            errors.add(new ValidationError(AuthErrorCodes.EMAIL_ALREADY_TAKEN.getErrorCode(),
-                                           AuthErrorCodes.EMAIL_ALREADY_TAKEN.getErrorMessage()));
+
+        if(StringUtils.isEmpty(name)){
+            errors.add(new ValidationError(AuthErrorCodes.FIRST_NAME_EMPTY.getErrorCode(),
+                                           AuthErrorCodes.FIRST_NAME_EMPTY.getErrorMessage()));
         }
 
-        // user with email should not exist
-        if(User.findByEmail(email) != null){
+        if(StringUtils.isEmpty(lastName)){
+            errors.add(new ValidationError(AuthErrorCodes.LAST_NAME_EMPTY.getErrorCode(),
+                                           AuthErrorCodes.LAST_NAME_EMPTY.getErrorMessage()));
+        }
+
+        if(StringUtils.isEmpty(password)){
+            errors.add(new ValidationError(AuthErrorCodes.PASSWORD_EMPTY.getErrorCode(),
+                                           AuthErrorCodes.PASSWORD_EMPTY.getErrorMessage()));
+        }
+
+        // user with userName should not exist
+        if (User.findByUserName(userName) != null){
             errors.add(new ValidationError(AuthErrorCodes.USER_NAME_ALREADY_TAKEN.getErrorCode(),
-                    AuthErrorCodes.USER_NAME_ALREADY_TAKEN.getErrorMessage()));
+                                           AuthErrorCodes.USER_NAME_ALREADY_TAKEN.getErrorMessage()));
+        }
+
+        Constraints.EmailValidator vl = new Constraints.EmailValidator();
+        if(StringUtils.isEmpty(email)){
+            errors.add(new ValidationError(AuthErrorCodes.EMAIL_EMPTY.getErrorCode(),
+                                           AuthErrorCodes.EMAIL_EMPTY.getErrorMessage()));
+        }else if(!vl.isValid(email)){
+            errors.add(new ValidationError(AuthErrorCodes.EMAIL_NOT_WELL_FORMED.getErrorCode(),
+                                           AuthErrorCodes.EMAIL_NOT_WELL_FORMED.getErrorMessage()));
+        }
+        // user with email should not exist
+        if(!StringUtils.isEmpty(email) && User.findByEmail(email) != null){
+            errors.add(new ValidationError(AuthErrorCodes.EMAIL_ALREADY_TAKEN.getErrorCode(),
+                                           AuthErrorCodes.EMAIL_ALREADY_TAKEN.getErrorMessage()));
         }
         return errors.isEmpty() ? null : errors;
     }
