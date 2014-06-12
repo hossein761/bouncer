@@ -3,7 +3,7 @@ package responses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * //
+ * This class is currently not being used
  *
  * @author Hossein Kazemi <a href="mailto:mrhosseinkazemi@gmail.com">mrhosseinkazemi@gmail.com</a>
  */

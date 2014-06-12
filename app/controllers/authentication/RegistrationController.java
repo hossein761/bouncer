@@ -7,18 +7,21 @@ import models.db.RegistrationToken;
 import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
+import play.data.validation.ValidationError;
 import play.libs.F;
-import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import requests.SignUpRequest;
 import responses.AuthErrorCodes;
-import responses.AuthErrorResponse;
+import responses.AuthMessages;
 import utils.CacheKeyUtils;
 import utils.EmailUtils;
 import utils.PBKDF2Hash;
 import utils.PasswordHash;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static play.data.Form.form;
@@ -39,7 +42,7 @@ public class RegistrationController extends Controller {
             public Result apply() throws Throwable {
                 final Form<SignUpRequest> signUpRequestForm = form(SignUpRequest.class).bindFromRequest();
                 if(signUpRequestForm.hasErrors()){
-                    return badRequest(signUpRequestForm.errorsAsJson());
+                    return badRequest(getErrorCodes(signUpRequestForm.errors()));
                 }
                 final SignUpRequest signUpRequest = signUpRequestForm.get();
                 Logger.info("Signing Up user with info {}", signUpRequest);
@@ -68,10 +71,14 @@ public class RegistrationController extends Controller {
                 // send email
                 LOGGER.info("Sending sign up confirmation email to user {}", user.id);
                 EmailUtils.sendSignUpEmail(registrationToken.id, user);
-                return ok("Check your mail box");
+                return ok(AuthMessages.CHECK_EMAIL.getMessageCode());
             }
         });
 
+    }
+
+    private static String getErrorCodes(Map<String, List<ValidationError>> errors) {
+       return new ArrayList<>(errors.keySet()).toString();
     }
 
     public static F.Promise<Result> signUpConfirm(final String registrationTokenId){
@@ -83,16 +90,14 @@ public class RegistrationController extends Controller {
                 if (registrationToken == null) {
                     registrationToken = RegistrationToken.findById(registrationTokenId);
                     if (registrationToken == null) {
-                        final AuthErrorResponse authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_REGISTRATION_TOKEN.getErrorCode(),
-                                AuthErrorCodes.INVALID_REGISTRATION_TOKEN.getErrorMessage());
-                        return unauthorized(Json.toJson(authErrorResponse));
+                        return unauthorized(AuthErrorCodes.INVALID_REGISTRATION_TOKEN.getErrorCode());
                     }
                 }
                 User user = User.findById(registrationToken.user.id);
                 user.status = models.Status.REGISTERED;
                 user.save();
                 Cache.remove(CacheKeyUtils.getRegistrationTokenCacheKey(registrationToken.id));
-                return ok("You may now login with your username/email and password");
+                return ok(AuthMessages.REGISTRATION_COMPLETE.getMessageCode());
             }
         });
 

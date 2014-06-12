@@ -27,6 +27,7 @@ public class RegistrationControllerTest {
                 Result result = callAction(controllers.authentication.routes.ref.RegistrationController.signUpRequest(),
                         new FakeRequest(POST, "/auth/signUp").withFormUrlEncodedBody(regFromParams));
                 assertThat(status(result)).isEqualTo(OK);
+                System.out.println(contentAsString(result));
 
                 // again
                 result = callAction(controllers.authentication.routes.ref.RegistrationController.signUpRequest(),

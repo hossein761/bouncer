@@ -12,16 +12,20 @@ import org.springframework.util.StringUtils;
 import play.Logger;
 import play.cache.Cache;
 import play.data.Form;
+import play.data.validation.ValidationError;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import requests.LoginRequest;
 import responses.AuthErrorCodes;
-import responses.AuthErrorResponse;
+import responses.AuthMessages;
 import utils.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static play.data.Form.form;
 
@@ -42,30 +46,25 @@ public class LoginController extends Controller {
         return F.Promise.promise(new F.Function0<Result>() {
             @Override
             public Result apply() throws Throwable {
-                final Form<LoginRequest> loginRequestForm = form(LoginRequest.class);
+                final Form<LoginRequest> loginRequestForm = form(LoginRequest.class).bindFromRequest();
                 if(loginRequestForm.hasErrors()){
-                    return badRequest(loginRequestForm.errorsAsJson());
+                    return badRequest(getErrorCodes(loginRequestForm.errors()));
                 }
-                final LoginRequest loginRequest = loginRequestForm.bindFromRequest().get();
+                final LoginRequest loginRequest = loginRequestForm.get();
                 logger.info("LoginRequest: {}", loginRequest );
                 final String emailOrUserName =  loginRequest.emailOrUserName;
                 final String incomingPassword =  loginRequest.password;
 
                 User user = getUseWithEmailOrUsername(emailOrUserName);
 
-                AuthErrorResponse authErrorResponse;
                 // if not fail
                 if(user == null){
                     Logger.info("User not found!");
-                    authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
-                            AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
-                    return unauthorized(Json.toJson(authErrorResponse));
+                    return unauthorized(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode());
                 }
                 if(user.status == models.Status.PENDING){
                     Logger.info("User found but not registered!");
-                    authErrorResponse = new AuthErrorResponse(AuthErrorCodes.REGISTRATION_INCOMPLETE.getErrorCode(),
-                            AuthErrorCodes.REGISTRATION_INCOMPLETE.getErrorMessage());
-                    return unauthorized(Json.toJson(authErrorResponse));
+                    return unauthorized(AuthErrorCodes.REGISTRATION_INCOMPLETE.getErrorCode());
                 }
                 if(user.status == models.Status.REGISTERED) {
                     // if found check if the passwords match then return an authorization code
@@ -75,9 +74,7 @@ public class LoginController extends Controller {
                                     user.iterations));
                     if (!passwordValid) {
                         Logger.info("Invalid password for user: {}" , user.id);
-                        authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
-                                AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
-                        return unauthorized(Json.toJson(authErrorResponse));
+                        return unauthorized(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode());
                     }
                     final String authCode = AuthorizationUtils.generateAuthorizationCode();
                     // and put it in cache with some expiry date
@@ -88,12 +85,14 @@ public class LoginController extends Controller {
                     user.update();
                     return ok(authCode);
                 }
-                authErrorResponse = new AuthErrorResponse(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode(),
-                        AuthErrorCodes.INVALID_CREDENTIALS.getErrorMessage());
-                return unauthorized(Json.toJson(authErrorResponse));
+                return unauthorized(AuthErrorCodes.INVALID_CREDENTIALS.getErrorCode());
             }
         });
 
+    }
+
+    private static String getErrorCodes(Map<String, List<ValidationError>> errors) {
+        return new ArrayList<>(errors.keySet()).toString();
     }
 
     private static User getUseWithEmailOrUsername(String emailOrUserName) {
@@ -114,9 +113,7 @@ public class LoginController extends Controller {
                 final String userId = (String) Cache.get(CacheKeyUtils.getAuthCodeCacheKey(authCode));
                 // if not fail
                 if(StringUtils.isEmpty(userId)){
-                    final AuthErrorResponse authErrorResponse = new AuthErrorResponse(AuthErrorCodes.AUTH_CODE_NOT_VALID.getErrorCode(),
-                            AuthErrorCodes.AUTH_CODE_NOT_VALID.getErrorMessage());
-                    return unauthorized(Json.toJson(authErrorResponse));
+                    return unauthorized(AuthErrorCodes.AUTH_CODE_NOT_VALID.getErrorCode());
                 }
                 // if found create an accessToken and return with refresh token as well
                 Cache.remove(CacheKeyUtils.getAuthCodeCacheKey(authCode));
@@ -144,7 +141,7 @@ public class LoginController extends Controller {
                 response().discardCookie(AUTH_TOKEN);
                 final String[] accessTokenHeader = ctx().request().headers().get(AuthConstants.ACCESS_TOKEN_HEADER);
                 Cache.remove(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
-                return ok("you have been logged out!");
+                return ok(AuthMessages.LOGGED_OUT.getMessageCode());
             }
         });
     }
