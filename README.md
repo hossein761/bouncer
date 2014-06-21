@@ -47,4 +47,19 @@ table user (
   )
 ```
 
+The fields that are mentioned as "not null" are field in during registration process. The ```user``` table will be the main
+
+table to save user information and the ```registration``` table holds a temporary token ('id') to differentiate if a user 
+
+has confirmed the registration process (confirming his email).
+
+#Flow
+TODO:
+
+#Endpoints:
+TODO:
+
+#Example javascript client:
+TODO:
+
 #TODO: complete
