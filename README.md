@@ -21,8 +21,7 @@ Running the project with this dependency will create two new tables called ```us
 table registration (
   id                        varchar(255) not null,
   user_id                   varchar(255),
-  constraint pk_registration primary key (id))
-
+)
 table user (
   id                        varchar(255) not null,
   first_name                varchar(255) not null,
@@ -44,7 +43,8 @@ table user (
   last_login_time           timestamp,
   status                    integer not null,
   created_time              timestamp not null,
-  updated_time              timestamp not null)
+  updated_time              timestamp not null
+  )
 ```
 
 #TODO: complete
