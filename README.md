@@ -57,8 +57,7 @@ table to save user information and the ```registration``` table holds a temporar
 has confirmed the registration process (confirming his email) or not.
 
 ##Routs
-Add ```->         /auth                	bouncer.Routes``` to your routs file. This will direct any requests to with the
-
+Add ```->         /auth                	bouncer.Routes``` to your routs file. This will direct any requests to with the 
 prefix ```/auth``` to one of the corresponding endpoints, as below:
 
 ```
@@ -71,7 +70,7 @@ GET         /signUpConfirm
 
 ##Configurations
 ### Auth configurations
-As the '''salt''' and '''iterations``` are saved in the database, the values below can change without breaking existing hashes:
+As the ```salt``` and ```iterations``` are saved in the database, the values below can change without breaking existing hashes:
 
 You can find the algorithm and the descriptions here: http://crackstation.net/hashing-security.htm
 
@@ -87,6 +86,7 @@ auth {
 ```
 
 ### Email configurations
+Email is sent for registration confirmation and password reset(not yet implemented).
 ```
 smtp {
 	host=localhost
@@ -99,13 +99,13 @@ smtp {
 ```
 
 #Flow
+On the bigger picture, Bouncer has two separate flows. One for ``Registration`` and the other for ``Login``.
+## Registration Flow
 TODO:
-
-#Endpoints:
+## Login Flow
+TODO:
 
 
 #Example javascript client:
 TODO:
 
-#TODO: 
-complete
