@@ -11,12 +11,13 @@ The authorization part replicates the OAuth 2.0 flow.
 At least Play 2.3.x
 
 #Installation
+##Dependency
 Add:
 
 ```"nl.bouncer" %% "bouncer" % "1.0-SNAPSHOT"```
 
 to the list of dependencies.
-
+##Database changes
 Running the project with this dependency will create two new tables called ```user``` and ```registration``` in your database with the given columns:
 
 ```sql
@@ -53,13 +54,55 @@ The fields that are mentioned as "not null" are field in during registration pro
 
 table to save user information and the ```registration``` table holds a temporary token ('id') to differentiate if a user 
 
-has confirmed the registration process (confirming his email).
+has confirmed the registration process (confirming his email) or not.
+
+##Routs
+Add ```->         /auth                	bouncer.Routes``` to your routs file. This will direct any requests to with the
+
+prefix ```/auth``` to one of the corresponding endpoints, as below:
+
+```
+POST        /login              
+GET			/logout				
+GET         /accessToken        
+POST        /signUp             
+GET         /signUpConfirm      
+```
+
+##Configurations
+### Auth configurations
+As the '''salt''' and '''iterations``` are saved in the database, the values below can change without breaking existing hashes:
+
+You can find the algorithm and the descriptions here: http://crackstation.net/hashing-security.htm
+
+```
+auth {
+    salt.byteSize=24
+    hash.byteSize=24
+    pbkdf2.iterations=1000
+    authCode.expiry=3600 # 1 hour
+    accessToken.expiry=1209600 # 2 weeks
+    registrationToken.expiry=3600
+}
+```
+
+### Email configurations
+```
+smtp {
+	host=localhost
+	port=9999
+	ssl=false
+	user=USERNAME
+	password=your_password
+	from="your_email"
+}
+```
 
 #Flow
 TODO:
 
 #Endpoints:
-TODO:
+
 
 #Example javascript client:
 TODO:
