@@ -3,7 +3,9 @@
 This is a RESTfull authorization and authentication library for Play! Framework 2 in Java. It is geared towards SPAs(single page applications) and mobile clients. 
 
 The authorization part replicates the OAuth 2.0 flow.
- 
+
+[![Build Status](https://travis-ci.org/hossein761/bouncer.svg?branch=master)](https://travis-ci.org/hossein761/bouncer)
+
 
 #Requirements
 At least Play 2.3.x
