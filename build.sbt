@@ -6,7 +6,7 @@ organization := "nl.bouncer"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.1"
 
 libraryDependencies ++= Seq(
   javaJdbc,
