@@ -1,4 +1,3 @@
-#Warning!: This project is still in progress and might contain bugs.
 #Description
 This is a RESTfull authorization and authentication library for Play! Framework 2 in Java. It is geared towards SPAs(single page applications) and mobile clients. 
 
