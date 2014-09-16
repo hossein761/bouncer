@@ -56,6 +56,7 @@ public class RegistrationController extends Controller {
                 final PBKDF2Hash hash = PasswordHash.createHash(signUpRequest.password);
                 user.passwordHash = hash.hash;
                 user.salt = hash.salt;
+                user.userType = signUpRequest.userType;
                 user.iterations = hash.iterations;
                 user.save();
 

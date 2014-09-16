@@ -56,6 +56,8 @@ public class User extends Model {
     public String salt; // see https://crackstation.net/hashing-security.htm
     @Column(name = "iterations", nullable = false)
     public int iterations;
+    @Column(name = "user_type")
+    public String userType; // an optional column
     @Column(name = "last_login_time")
     public Timestamp lastLoginTime;
     @Column(name = "status", nullable = false)

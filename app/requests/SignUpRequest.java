@@ -21,6 +21,7 @@ public class SignUpRequest {
     public String userName;
     public String password;
     public String email;
+    public String userType;
 
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
