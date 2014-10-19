@@ -48,8 +48,6 @@ public class User extends Model {
     public String geoLocation;
     @Column(name = "about")
     public String about;
-    @Column(name = "profile_img_url", unique = true)
-    public String profileImageUrl;
     @Column(name = "password_hash", nullable = false)
     public String passwordHash;
     @Column(name = "salt", nullable = false)
