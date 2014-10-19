@@ -8,6 +8,9 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import play.Logger;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Utility class for emails
  *
@@ -32,11 +35,11 @@ public class EmailUtils {
         email.setSubject("Registration email");
         try {
         		final String emailMsg = "Click on: \n " + generateSignUpUrl(registrationTokenId);
-            email.setFrom(FROM);
-            email.setMsg(emailMsg);
-            email.addTo(user.email);
-            Logger.info("Sending registration email to: {} contents: {}", email.getToAddresses(), emailMsg);
-            email.send();
+                email.setFrom(FROM);
+                email.setMsg(emailMsg);
+                email.addTo(user.email);
+                Logger.info("Sending registration email to: {} contents: {}", email.getToAddresses(), emailMsg);
+                email.send();
         }
         catch(EmailException e){
             logger.error("Error sending email {}", e);
@@ -45,6 +48,12 @@ public class EmailUtils {
 
     //TODO: use email templates!
     private static String generateSignUpUrl(final String registrationToken) {
-        return controllers.authentication.routes.RegistrationController.signUpConfirm(registrationToken).toString();
+        try {
+            final String hostName = InetAddress.getLocalHost().getHostName();
+            return hostName + controllers.authentication.routes.RegistrationController.signUpConfirm(registrationToken).toString();
+        } catch (UnknownHostException e) {
+            Logger.error("Unable to resolve host name {}", e);
+        }
+        return "";
     }
 }
