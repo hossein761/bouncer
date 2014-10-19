@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigFactory;
 import domain.AccessToken;
 import models.db.User;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.StringUtils;
 
 import play.Logger;
@@ -133,14 +134,16 @@ public class LoginController extends Controller {
 
     }
 
-    @BouncerSecuredAction
     public static F.Promise<Result> logout(){
         return F.Promise.promise( new F.Function0<Result>() {
             @Override
             public Result apply() throws Throwable {
                 response().discardCookie(AUTH_TOKEN);
                 final String[] accessTokenHeader = ctx().request().headers().get(AuthConstants.ACCESS_TOKEN_HEADER);
-                Cache.remove(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
+                if(ArrayUtils.isNotEmpty(accessTokenHeader)) {
+                    Cache.remove(CacheKeyUtils.getAccessTokenCacheKey(accessTokenHeader[0]));
+                }
+                session().clear();
                 return ok(AuthMessages.LOGGED_OUT.getMessageCode());
             }
         });
