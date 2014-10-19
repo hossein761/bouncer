@@ -64,9 +64,14 @@ public class SignUpRequest {
     }
 
     @Override
-	public String toString() {
-		return "SignUpRequest [name=" + name + ", lastName=" + lastName
-				+ ", userName=" + userName + ", password=" + password
-				+ ", email=" + email + "]";
-	}
+    public String toString() {
+        return "SignUpRequest{" +
+                "name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", userType='" + userType + '\'' +
+                '}';
+    }
 }
