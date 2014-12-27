@@ -13,7 +13,7 @@ At least Play 2.3.x
 ##Dependency
 Add:
 
-```"nl.bouncer" %% "bouncer" % "1.0-SNAPSHOT"```
+```"com.github.hossein761" %% "bouncer" % "1.0.1"```
 
 to the list of dependencies.
 ##Database changes
