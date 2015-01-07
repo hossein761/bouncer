@@ -1,6 +1,6 @@
 name := "bouncer"
 
-version := "1.0.0"
+version := "1.0.1"
 
 organization := "com.github.hossein761"
 
@@ -29,7 +29,7 @@ publishTo := {
     Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
 }
 
-credentials += Credentials("Sonatype Nexus Repository Manager","oss.sonatype.org","","")
+credentials += Credentials("Sonatype Nexus Repository Manager","oss.sonatype.org","XXXXX","XXXXX")
 
 licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
