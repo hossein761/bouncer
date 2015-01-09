@@ -97,6 +97,7 @@ public class RegistrationController extends Controller {
                 User user = User.findById(registrationToken.user.id);
                 user.status = models.Status.REGISTERED;
                 user.save();
+                registrationToken.delete();
                 Cache.remove(CacheKeyUtils.getRegistrationTokenCacheKey(registrationToken.id));
                 return ok(AuthMessages.REGISTRATION_COMPLETE.getMessageCode());
             }
